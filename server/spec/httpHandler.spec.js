@@ -5,6 +5,7 @@ const expect = require('chai').expect;
 const server = require('./mockServer');
 
 const httpHandler = require('../js/httpHandler');
+const messageQueue = require('../js/messageQueue');
 
 
 
@@ -23,13 +24,22 @@ describe('server responses', () => {
 
   it('should respond to a GET request for a swim command', (done) => {
     // write your test here
-    let {req, res} = server.mock('/', 'GET');
-    var directions = ['left', 'right', 'up', 'down'];
+    var {req, res} = server.mock('/', 'GET');
 
     httpHandler.router(req, res);
     expect(res._responseCode).to.equal(200);
     expect(res._ended).to.equal(true);
-    expect(directions.includes(res._data.toString())).to.equal(true);
+    expect(res._data.toString()).to.equal('');
+
+    messageQueue.enqueue('left');
+    var {req, res} = server.mock('/', 'GET');
+
+    httpHandler.router(req, res);
+    expect(res._responseCode).to.equal(200);
+    expect(res._ended).to.equal(true);
+    expect(res._data.toString()).to.equal('left');
+
+    messageQueue.dequeue();
     done();
   });
 
