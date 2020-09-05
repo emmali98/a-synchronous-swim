@@ -8,7 +8,7 @@
       SwimTeam.move(data);
     })
     .fail(() => console.log('Request failed'))
-  }, 250);
+  }, 10);
 
   /////////////////////////////////////////////////////////////////////
   // The ajax file uplaoder is provided for your convenience!
