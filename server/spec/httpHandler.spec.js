@@ -60,7 +60,8 @@ describe('server responses', () => {
 
     httpHandler.router(req, res, () => {
       expect(res._responseCode).to.equal(200);
-      // expect(res._ended).to.equal(true); How do we end the res stream??? Callback probably
+      setTimeout(function()
+        {expect(res._ended).to.equal(true)}, 0);
       done();
     });
     done();

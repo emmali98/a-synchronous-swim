@@ -25,11 +25,12 @@ module.exports.router = (req, res, next = ()=>{}) => {
       next();
     } else if (fs.existsSync(path.join('.', req.url))) {
       res.writeHead(200, headers);
-      var stream = fs.createReadStream(path.join('.', req.url));
-      stream.on('open', () => {stream.pipe(res)});
-      stream.on('error', (err) => res.end(err));
-      // Do we need to close the stream? What's going on here?
-      // res.end();
+
+      var imageStream = fs.createReadStream(path.join('.', req.url));
+      imageStream.on('open', () => imageStream.pipe(res));
+      imageStream.on('error', (err) => res.end(err));
+      imageStream.on('end', () => res.end());
+
       next();
     } else {
       res.writeHead(404, headers);
