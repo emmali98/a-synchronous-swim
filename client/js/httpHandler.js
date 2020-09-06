@@ -21,7 +21,7 @@
     $.ajax({
       type: 'POST',
       data: formData,
-      url: 'FILL_ME_IN',
+      url: serverUrl + '/background.jpg',
       cache: false,
       contentType: false,
       processData: false,
@@ -42,10 +42,10 @@
     }
 
     var file = form.files[0];
-    if (file.type !== 'image/jpeg') {
-      console.log('Not a jpg file!');
-      return;
-    }
+    // if (file.type !== 'multipart/form-data') {
+    //   console.log('Not a multipart file!');
+    //   return;
+    // }
 
     ajaxFileUplaod(file);
   });

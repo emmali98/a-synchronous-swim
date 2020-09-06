@@ -23,38 +23,47 @@ module.exports.router = (req, res, next = ()=>{}) => {
       res.write(message ? message : '');
       res.end();
       next();
-    } else if (fs.existsSync(path.join('.', req.url))) {
-      res.writeHead(200, headers);
-
-      var imageStream = fs.createReadStream(path.join('.', req.url));
-      imageStream.on('open', () => imageStream.pipe(res));
-      imageStream.on('error', (err) => res.end(err));
-      imageStream.on('end', () => res.end());
-
-      next();
+    } else if (req.url === '/background.jpg') {
+      fs.readFile(module.exports.backgroundImageFile, (err, data) => {
+        if (err) {
+          res.writeHead(404, headers);
+        } else {
+          res.writeHead(200, headers);
+          res.write(data, 'binary');
+        }
+        res.end();
+        next();
+      })
+      // res.writeHead(200, headers);
+      // var imageStream = fs.createReadStream(path.join('.', req.url));
+      // imageStream.on('open', () => imageStream.pipe(res));
+      // imageStream.on('error', (err) => res.end(err));
+      // imageStream.on('end', () => res.end());
+      // next();
     } else {
       res.writeHead(404, headers);
       res.end();
       next();
     }
-  } else {
+  } else if (req.method === 'POST') {
+    // access a file path from req.url, and put the req.data in that path
+    var imageData = Buffer.alloc(0);
+
+    req.on('data', (chunk) => {
+      imageData = Buffer.concat([imageData, chunk]);
+    });
+
+    req.on('end', () => {
+      var file = multipart.getFile(imageData);
+      fs.writeFile(module.exports.backgroundImageFile, file.data, (err) => {
+        res.writeHead(err ? 400 : 201, headers);
+        res.end();
+        next();
+      })
+    })
+  } else if (req.method === 'OPTIONS') {
     res.writeHead(200, headers);
     res.end();
     next();
   }
-
-  // if (!fs.existsSync(path.join('.', req.url))) {
-  //   res.writeHead(404, headers);
-  //   res.end();
-  //   next();
-  // } else {
-  //   ares.writeHead(200, headers);
-
-  //   if (req.method === 'GET') {
-  //     var message = messageQueue.dequeue();
-  //     res.write(message ? message : '');
-  //   }
-  //   res.end();
-  //   next();  // invoke next() at the end of a request to help with testing!
-  // }
 };
